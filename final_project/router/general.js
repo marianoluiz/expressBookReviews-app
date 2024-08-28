@@ -4,7 +4,8 @@ let isValid = require("./auth_users.js").isValid;
 let users = require("./auth_users.js").users;
 const public_users = express.Router();
 
-
+//register a user
+//localhost:5000/register
 public_users.post("/register", (req,res) => {
   const username = req.body.username;
   const password = req.body.password;
@@ -25,6 +26,7 @@ public_users.post("/register", (req,res) => {
 });
 
 // Get the book list available in the shop
+//localhost:5000/
 public_users.get('/',function (req, res) {
   res.send(JSON.stringify(books, null, 4));
 });
