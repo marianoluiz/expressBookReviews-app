@@ -59,10 +59,29 @@ regd_users.post("/login", (req,res) => {
 });
 
 // Add a book review
+//localhost:5000/customer/auth/review/:isbn
+
 regd_users.put("/auth/review/:isbn", (req, res) => {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+  const isbn = req.params.isbn;
+  const review = req.body.review;
+  const user = req.user.username;
+
+  if (books[isbn]) {
+
+    if(user in books[isbn].reviews) {
+      books[isbn].reviews[user] = review;
+      return res.status(200).json({message: "Review modified successfully"});
+    } else {
+      books[isbn].reviews[user] = review; // directly assign when obj, push when array
+      return res.status(200).json({message: "Review added / modified successfully"});
+    }
+
+  } else {
+    return res.status(404).json({message: "Book not found"});
+  }
 });
+
+
 
 module.exports.authenticated = regd_users;
 module.exports.isValid = isValid;
