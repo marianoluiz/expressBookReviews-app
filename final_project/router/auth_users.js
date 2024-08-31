@@ -46,8 +46,9 @@ regd_users.post("/login", (req,res) => {
   if(authenticatedUser(username,password)) {
     let accessToken = jwt.sign({
       data: password
-    }, 'access', { expiresIn: 120 })
+    }, 'access', { expiresIn: 60 * 60 })
 
+    //the user name is stored in the session.authorization
     req.session.authorization = {
       accessToken, username
     };
@@ -64,7 +65,7 @@ regd_users.post("/login", (req,res) => {
 regd_users.put("/auth/review/:isbn", (req, res) => {
   const isbn = req.params.isbn;
   const review = req.body.review;
-  const user = req.user.username;
+  const user = req.session.authorization.username;
 
   if (books[isbn]) {
 
@@ -73,7 +74,7 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
       return res.status(200).json({message: "Review modified successfully"});
     } else {
       books[isbn].reviews[user] = review; // directly assign when obj, push when array
-      return res.status(200).json({message: "Review added / modified successfully"});
+      return res.status(200).json({message: "Review added successfully"});
     }
 
   } else {
@@ -81,7 +82,22 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
   }
 });
 
+// delete a book review
+//localhost:5000/customer/auth/review/:isbn
 
+regd_users.delete("/auth/review/:isbn", (req, res) => {
+   const user = req.session.authorization.username;
+  const isbn = req.params.isbn;
+  const reviews = req.body.review
+
+  if(books[isbn] && books[isbn].reviews[user]) {
+    delete books[isbn].reviews[user];
+    res.status(200).send(`Review by ${user} deleted`);
+  } else {
+    res.status(404).send(`Book or review not found`);
+  } 
+
+});
 
 module.exports.authenticated = regd_users;
 module.exports.isValid = isValid;
